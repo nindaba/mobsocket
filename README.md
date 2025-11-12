@@ -1,17 +1,43 @@
-# mobsocket
+# WebSocket Demo
 
-A new Flutter project.
+A minimal Flutter app demonstrating WebSocket connectivity using STOMP over SockJS.
 
-## Getting Started
+## Overview
 
-This project is a starting point for a Flutter application.
+This project shows how to:
+- Connect to a WebSocket server with JWT authentication
+- Subscribe to user-specific channels
+- Receive and display real-time messages
+- Handle connection state changes
 
-A few resources to get you started if this is your first Flutter project:
+## Quick Start
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Update configuration in `lib/main.dart`:
+```dart
+final String baseUrl = "your-server.com";
+final String jwtToken = "your-jwt-token";
+final String userId = "your-user-id";
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# mobsocket
+2. Run the app:
+```bash
+flutter run
+```
+
+## Architecture
+
+### Files
+- `lib/main.dart` - Simple UI with connect/disconnect controls
+- `lib/services/notification_websocket_service.dart` - WebSocket connection logic
+- `lib/models/notification_ws.dart` - Message data model
+
+### How It Works
+
+1. **Connection**: Uses STOMP client with SockJS fallback
+2. **Authentication**: JWT token passed in Authorization header
+3. **Subscription**: Subscribes to `/users/{userId}/notifications`
+4. **Messages**: Received as JSON and parsed into NotificationWS objects
+
+## Dependencies
+
+- `stomp_dart_client` - STOMP protocol with SockJS support

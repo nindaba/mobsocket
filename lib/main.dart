@@ -12,79 +12,56 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'WebSocket Notifications',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const NotificationHomePage(),
+      title: 'WebSocket Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const WebSocketDemo(),
     );
   }
 }
 
-class NotificationHomePage extends StatefulWidget {
-  const NotificationHomePage({super.key});
+class WebSocketDemo extends StatefulWidget {
+  const WebSocketDemo({super.key});
 
   @override
-  State<NotificationHomePage> createState() => _NotificationHomePageState();
+  State<WebSocketDemo> createState() => _WebSocketDemoState();
 }
 
-class _NotificationHomePageState extends State<NotificationHomePage> {
-  final NotificationWebSocketService _wsService =
-      NotificationWebSocketService();
-  final List<NotificationWS> _notifications = [];
+class _WebSocketDemoState extends State<WebSocketDemo> {
+  final _wsService = NotificationWebSocketService();
+  final List<NotificationWS> _messages = [];
   bool _isConnected = false;
 
-  // Configuration - Update these for your backend
-  final String _baseUrl = "travomate.online";
-  final String _jwtToken =
-      "eyJraWQiOiI1SythZWhOMHgxcEVJUlwvXC9oUFd3aGJQZHdPYTVoRERDN3hzS0NlUHdraUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJmMzY0MDgzMi1kMDcxLTcwZDctZmUxMC1kYjk5ZDgyOGRkNGUiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb21cL2V1LWNlbnRyYWwtMV9kQ3BIbllOM2wiLCJjbGllbnRfaWQiOiI2NTF2amdxMzE5b3NuOTd0MWhuZW5rbDhyNCIsIm9yaWdpbl9qdGkiOiI1OWVmMjk0Ni1kZjY2LTRjNDAtOTM3OC1lNWJiODM2NTM5MmMiLCJldmVudF9pZCI6IjM3ZWEyYTVhLTllMmYtNDQzNS04OGJmLTU5MTczZDgwMjY2ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3NjE1OTI3ODUsImV4cCI6MTc2Mjk1MDg0NywiaWF0IjoxNzYyOTQ3MjQ3LCJqdGkiOiIyMzQ1NDQxYS05ZTY2LTQzM2ItOGZkZS1jZmMyMzQwZTViZDEiLCJ1c2VybmFtZSI6ImYzNjQwODMyLWQwNzEtNzBkNy1mZTEwLWRiOTlkODI4ZGQ0ZSJ9.obAm8RJgedBsAbmStXOJQo05s3P2C7R2xeqSFHfgnPBUXlbm3JChVi7i_6k3AfJxWKNOJ4GQTkQGSw33OAu3lYqgnm47FoEP9gVXwLIJjeGMHJrnAW10UW0JyVvIEUfcLdvWgXApeVtY6NemhQfcd5p0EssSOQuJoFaZWmLlrRBdVteXsA2zIjx2n_meFk41Aqz63dKq4Grn7a85kn6-DZ7NsrVrYjAvxQTs_UrNj_fDIenG2K3jUqgacDnNVpqJu66aS77s_LTXeoN6uGR5EY_OUdJunTUjE5XBRK_lOuRvYqLjjwpmgiJbzU-gL4i-MvnjJJjZo48eznh2UZd1yg";
-  final String _userId =
-      "f3640832-d071-70d7-fe10-db99d828dd4e"; // Current user ID
-  final bool _useSSL = true; // Set to true for production (wss://)
+  // Configuration - Update for your backend
+  final String baseUrl = "travomate.online";
+  final String jwtToken =
+      "eyJraWQiOiI1SythZWhOMHgxcEVJUlwvXC9oUFd3aGJQZHdPYTVoRERDN3hzS0NlUHdraUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJmMzY0MDgzMi1kMDcxLTcwZDctZmUxMC1kYjk5ZDgyOGRkNGUiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb21cL2V1LWNlbnRyYWwtMV9kQ3BIbllOM2wiLCJjbGllbnRfaWQiOiI2NTF2amdxMzE5b3NuOTd0MWhuZW5rbDhyNCIsIm9yaWdpbl9qdGkiOiI1OWVmMjk0Ni1kZjY2LTRjNDAtOTM3OC1lNWJiODM2NTM5MmMiLCJldmVudF9pZCI6IjM3ZWEyYTVhLTllMmYtNDQzNS04OGJmLTU5MTczZDgwMjY2ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3NjE1OTI3ODUsImV4cCI6MTc2Mjk4MjE3OSwiaWF0IjoxNzYyOTc4NTc5LCJqdGkiOiJjZjg3ZTFlOC02YTc4LTQwMzQtYTM1ZC1jMjNmNDA2YTg3NWYiLCJ1c2VybmFtZSI6ImYzNjQwODMyLWQwNzEtNzBkNy1mZTEwLWRiOTlkODI4ZGQ0ZSJ9.YOzkDMWsRtgi3L0IX6YdvFgc4qpzstVuAM4cY5sZlIXpjhl94KpOqxSsAaII2Vl57P3rxA2aGS0sU-EWRappnSpxBwdn5huUthx4x_swlqckvhMF-GHVQdg6XzhNEMX8_Frymb2wPnvB_VAVFAjjd2cmB5c0CL2-qV2upyiRAAaB92wF2rOcvObL8J2-52iDq7psXINnz7l3y_iXRoYTdS2tdTj5RruY1e3hCfvBqYu_XR39vMOEDHnAOKXCUFVEYKv0J-tDcgoojG1u1ND6Ydni4o9K8opeaH-cpjYkzPNr08__BT_cbSbpgALh4vspSQVB2UTK1WChFpGH07V42Q";
+  final String userId = "f3640832-d071-70d7-fe10-db99d828dd4e";
 
   @override
   void initState() {
     super.initState();
-    _setupWebSocket();
-  }
 
-  void _setupWebSocket() {
-    // Listen to connection state changes
+    // Listen to connection state
     _wsService.connectionState.listen((connected) {
-      setState(() {
-        _isConnected = connected;
-      });
+      setState(() => _isConnected = connected);
     });
 
-    // Listen to incoming notifications
+    // Listen to messages
     _wsService.notifications.listen((notification) {
-      setState(() {
-        _notifications.insert(0, notification); // Add to top of list
-      });
+      setState(() => _messages.insert(0, notification));
     });
 
-    // Connect to WebSocket
-    _connectToWebSocket();
+    // Auto-connect
+    _connect();
   }
 
-  void _connectToWebSocket() {
+  void _connect() {
     _wsService.connect(
-      baseUrl: _baseUrl,
-      jwtToken: _jwtToken,
-      userId: _userId, // Subscribe to user-specific channel
-      useSSL: _useSSL,
+      baseUrl: baseUrl,
+      jwtToken: jwtToken,
+      userId: userId,
+      useSSL: true,
     );
-  }
-
-  void _disconnectFromWebSocket() {
-    _wsService.disconnect();
-  }
-
-  void _clearNotifications() {
-    setState(() {
-      _notifications.clear();
-    });
   }
 
   @override
@@ -97,133 +74,56 @@ class _NotificationHomePageState extends State<NotificationHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('WebSocket Notifications'),
+        title: const Text('WebSocket Demo'),
         actions: [
-          // Connection status indicator
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Center(
-              child: Row(
-                children: [
-                  Icon(
-                    _isConnected ? Icons.cloud_done : Icons.cloud_off,
-                    color: _isConnected ? Colors.green : Colors.red,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    _isConnected ? 'Connected' : 'Disconnected',
-                    style: TextStyle(
-                      color: _isConnected ? Colors.green : Colors.red,
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          Icon(
+            _isConnected ? Icons.circle : Icons.circle_outlined,
+            color: _isConnected ? Colors.green : Colors.red,
+            size: 16,
           ),
+          const SizedBox(width: 16),
         ],
       ),
       body: Column(
         children: [
-          // Control buttons
+          // Connection controls
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton.icon(
-                  onPressed: _isConnected ? null : _connectToWebSocket,
-                  icon: const Icon(Icons.power),
-                  label: const Text('Connect'),
+                ElevatedButton(
+                  onPressed: _isConnected ? null : _connect,
+                  child: const Text('Connect'),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _isConnected ? _disconnectFromWebSocket : null,
-                  icon: const Icon(Icons.power_off),
-                  label: const Text('Disconnect'),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _isConnected
+                      ? () => _wsService.disconnect()
+                      : null,
+                  child: const Text('Disconnect'),
                 ),
-                ElevatedButton.icon(
-                  onPressed: _notifications.isEmpty
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _messages.isEmpty
                       ? null
-                      : _clearNotifications,
-                  icon: const Icon(Icons.clear_all),
-                  label: const Text('Clear'),
+                      : () => setState(() => _messages.clear()),
+                  child: const Text('Clear'),
                 ),
               ],
             ),
           ),
-          const Divider(),
 
-          // Notification count
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              'Notifications: ${_notifications.length}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-          ),
-
-          // Notifications list
+          // Messages list
           Expanded(
-            child: _notifications.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.notifications_none,
-                          size: 64,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _isConnected
-                              ? 'Waiting for notifications...'
-                              : 'Connect to receive notifications',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
+            child: _messages.isEmpty
+                ? const Center(child: Text('No messages yet'))
                 : ListView.builder(
-                    itemCount: _notifications.length,
+                    itemCount: _messages.length,
                     itemBuilder: (context, index) {
-                      final notification = _notifications[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 8.0,
-                          vertical: 4.0,
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: _getNotificationColor(
-                              notification.type,
-                            ),
-                            child: Icon(
-                              _getNotificationIcon(notification.type),
-                              color: Colors.white,
-                            ),
-                          ),
-                          title: Text(
-                            notification.content ?? 'No content',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (notification.type != null)
-                                Text('Type: ${notification.type}'),
-                              if (notification.itemId != null)
-                                Text('Item ID: ${notification.itemId}'),
-                              if (notification.id != null)
-                                Text('ID: ${notification.id}'),
-                            ],
-                          ),
-                          isThreeLine: true,
-                        ),
+                      final msg = _messages[index];
+                      return ListTile(
+                        title: Text(msg.content ?? 'No content'),
+                        subtitle: Text('Type: ${msg.type ?? "Unknown"}'),
                       );
                     },
                   ),
@@ -231,39 +131,5 @@ class _NotificationHomePageState extends State<NotificationHomePage> {
         ],
       ),
     );
-  }
-
-  Color _getNotificationColor(String? type) {
-    switch (type?.toUpperCase()) {
-      case 'BOOKING':
-        return Colors.blue;
-      case 'MESSAGE':
-        return Colors.green;
-      case 'EMAIL':
-        return Colors.orange;
-      case 'SMS':
-        return Colors.purple;
-      case 'INSTANT':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  IconData _getNotificationIcon(String? type) {
-    switch (type?.toUpperCase()) {
-      case 'BOOKING':
-        return Icons.book;
-      case 'MESSAGE':
-        return Icons.message;
-      case 'EMAIL':
-        return Icons.email;
-      case 'SMS':
-        return Icons.sms;
-      case 'INSTANT':
-        return Icons.notification_important;
-      default:
-        return Icons.notifications;
-    }
   }
 }
