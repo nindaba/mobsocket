@@ -30,16 +30,18 @@ class NotificationHomePage extends StatefulWidget {
 }
 
 class _NotificationHomePageState extends State<NotificationHomePage> {
-  final NotificationWebSocketService _wsService = NotificationWebSocketService();
+  final NotificationWebSocketService _wsService =
+      NotificationWebSocketService();
   final List<NotificationWS> _notifications = [];
   bool _isConnected = false;
 
   // Configuration - Update these for your backend
-  final String _baseUrl = 'localhost:8080';
+  final String _baseUrl = "travomate.online";
   final String _jwtToken =
-      "eyJraWQiOiI1SythZWhOMHgxcEVJUlwvXC9oUFd3aGJQZHdPYTVoRERDN3hzS0NlUHdraUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJmMzY0MDgzMi1kMDcxLTcwZDctZmUxMC1kYjk5ZDgyOGRkNGUiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb21cL2V1LWNlbnRyYWwtMV9kQ3BIbllOM2wiLCJjbGllbnRfaWQiOiI2NTF2amdxMzE5b3NuOTd0MWhuZW5rbDhyNCIsIm9yaWdpbl9qdGkiOiI1OWVmMjk0Ni1kZjY2LTRjNDAtOTM3OC1lNWJiODM2NTM5MmMiLCJldmVudF9pZCI6IjM3ZWEyYTVhLTllMmYtNDQzNS04OGJmLTU5MTczZDgwMjY2ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3NjE1OTI3ODUsImV4cCI6MTc2MjkzNjU0MywiaWF0IjoxNzYyOTMyOTQzLCJqdGkiOiJmOWM1OGY0NC00ZmFkLTQ3ZGMtODdlMC1lNTUzMjRhYWIyZDgiLCJ1c2VybmFtZSI6ImYzNjQwODMyLWQwNzEtNzBkNy1mZTEwLWRiOTlkODI4ZGQ0ZSJ9.UmsC88B2Cvs8blv_knCXeuDHF7tSzCHz_kknaF4Nztxn_Mvl7eCzzwPpUAjAetGEthoN_iwA0hwFVeZ7jLl87HHfdHkPIMuW96MKJ8dYZy-kixsfk_1xRp59w6c8vgVbw4t_7kxvFBqpW8OZavtF-B_H7yFsmKGs-kwOh43LvotbkhJwlE-auCiuGO6AXrJG6aaUGvTVYMN6_OTqFdu4St29Q-Q_UuGbS0fgVDJj6Koqebh8b_p-99D-X8eCnLrKI-Tl2Wd43P4CDsxr1TYugRi871-61QiiY57a52sR8djlEFVcaBS61LCo0g9PVRrnme2a1HDPkTo20bfDBP4V0A";
-  final String _userId = "f3640832-d071-70d7-fe10-db99d828dd4e"; // Current user ID
-  final bool _useSSL = false; // Set to true for production (wss://)
+      "eyJraWQiOiI1SythZWhOMHgxcEVJUlwvXC9oUFd3aGJQZHdPYTVoRERDN3hzS0NlUHdraUE9IiwiYWxnIjoiUlMyNTYifQ.eyJzdWIiOiJmMzY0MDgzMi1kMDcxLTcwZDctZmUxMC1kYjk5ZDgyOGRkNGUiLCJjb2duaXRvOmdyb3VwcyI6WyJhZG1pbiJdLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuZXUtY2VudHJhbC0xLmFtYXpvbmF3cy5jb21cL2V1LWNlbnRyYWwtMV9kQ3BIbllOM2wiLCJjbGllbnRfaWQiOiI2NTF2amdxMzE5b3NuOTd0MWhuZW5rbDhyNCIsIm9yaWdpbl9qdGkiOiI1OWVmMjk0Ni1kZjY2LTRjNDAtOTM3OC1lNWJiODM2NTM5MmMiLCJldmVudF9pZCI6IjM3ZWEyYTVhLTllMmYtNDQzNS04OGJmLTU5MTczZDgwMjY2ZSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3NjE1OTI3ODUsImV4cCI6MTc2Mjk1MDg0NywiaWF0IjoxNzYyOTQ3MjQ3LCJqdGkiOiIyMzQ1NDQxYS05ZTY2LTQzM2ItOGZkZS1jZmMyMzQwZTViZDEiLCJ1c2VybmFtZSI6ImYzNjQwODMyLWQwNzEtNzBkNy1mZTEwLWRiOTlkODI4ZGQ0ZSJ9.obAm8RJgedBsAbmStXOJQo05s3P2C7R2xeqSFHfgnPBUXlbm3JChVi7i_6k3AfJxWKNOJ4GQTkQGSw33OAu3lYqgnm47FoEP9gVXwLIJjeGMHJrnAW10UW0JyVvIEUfcLdvWgXApeVtY6NemhQfcd5p0EssSOQuJoFaZWmLlrRBdVteXsA2zIjx2n_meFk41Aqz63dKq4Grn7a85kn6-DZ7NsrVrYjAvxQTs_UrNj_fDIenG2K3jUqgacDnNVpqJu66aS77s_LTXeoN6uGR5EY_OUdJunTUjE5XBRK_lOuRvYqLjjwpmgiJbzU-gL4i-MvnjJJjZo48eznh2UZd1yg";
+  final String _userId =
+      "f3640832-d071-70d7-fe10-db99d828dd4e"; // Current user ID
+  final bool _useSSL = true; // Set to true for production (wss://)
 
   @override
   void initState() {
@@ -141,7 +143,9 @@ class _NotificationHomePageState extends State<NotificationHomePage> {
                   label: const Text('Disconnect'),
                 ),
                 ElevatedButton.icon(
-                  onPressed: _notifications.isEmpty ? null : _clearNotifications,
+                  onPressed: _notifications.isEmpty
+                      ? null
+                      : _clearNotifications,
                   icon: const Icon(Icons.clear_all),
                   label: const Text('Clear'),
                 ),
@@ -195,7 +199,9 @@ class _NotificationHomePageState extends State<NotificationHomePage> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor: _getNotificationColor(notification.type),
+                            backgroundColor: _getNotificationColor(
+                              notification.type,
+                            ),
                             child: Icon(
                               _getNotificationIcon(notification.type),
                               color: Colors.white,
